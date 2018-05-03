@@ -29,7 +29,7 @@ module.exports = (env) => {
             filename: isDev ? `./js/[name].bundle.${rhVersion}.js` : `./js/[name].[hash].bundle.${rhVersion}.js`,
             sourceMapFilename: isDev ? `./js/[name].bundle.${rhVersion}.map` : `./js/[name].[chunkhash].bundle.${rhVersion}.map`,
             chunkFilename: isDev ? './js/[id].chunk.js' : './js/[id].[chunkhash].chunk.js',
-            publicPath: '/',
+            publicPath: isDev ? '/' : '/projects/charts/',
         },
         module: {
             rules: [
