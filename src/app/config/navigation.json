@@ -1,0 +1,93 @@
+{
+  "items": [
+    {
+      "title": "Главная",
+      "route": "/board",
+      "icon": "fa fa-lg fa-fw fa-dashboard"
+    },
+    {
+      "title": "База танцоров",
+      "route": "/dancers",
+      "icon": "fa fa-lg fa-fw fa-database",
+      "badge": {
+        "label": "new!",
+        "class": "badge bg-color-redLight pull-right"
+      }
+    },
+    {
+      "title": "Музыка",
+      "icon": "fa fa-lg fa-fw fa-music",
+      "items": [
+        {
+          "title": "ДнД Сампо",
+          "route": "/jnj-training",
+          "icon": "fa fa-lg fa-fw fa-recycle"
+        },
+        {
+          "title": "Плеер",
+          "route": "/player",
+          "icon": "fa fa-lg fa-fw fa-play"
+        },
+        {
+          "title": "Прямой эфир",
+          "href": "http://hustlefm.ru",
+          "icon": "fa fa-lg fa-fw fa-volume-up",
+          "external": true
+        }
+      ]
+    },
+    {
+      "title": "Календарь",
+      "route": "/calendar",
+      "icon": "fa fa-lg fa-fw fa-calendar"
+    },
+    {
+      "title": "Сервисы",
+      "icon": "fa fa-lg fa-fw fa-cogs",
+      "items": [
+        {
+          "icon": "fa fa-users",
+          "title": "Сравнение танцоров",
+          "route": "/services/compare",
+          "disabled": true
+        },
+        {
+          "icon": "fa fa-calculator",
+          "title": "Калькулятор очков",
+          "route": "/services/points",
+          "disabled": true
+        },
+        {
+          "icon": "fa fa-bar-chart",
+          "title": "Статистика",
+          "route": "/services/stats",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "title": "О нас",
+      "icon": "fa fa-lg fa-fw fa-info-circle",
+      "items": [
+        {
+          "icon": "fa fa-comments",
+          "title": "Контакты",
+          "route": "/about",
+          "disabled": true
+        },
+        {
+          "icon": "fa fa-rss",
+          "title": "Блог",
+          "route": "/blog",
+          "disabled": true
+        },
+        {
+          "icon": "fa fa-wrench",
+          "title": "Помощь проекту",
+          "route": "/donate",
+          "disabled": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+#calendar .fc-right, #calendar .fc-center{
+  display: none;
+}
+
+.fc-row.fc-widget-header th:nth-child(-n+5) {
+  padding: 0;
+  /*width: 75%;*/
+}
+
+.fc-bg td:nth-child(-n+5),
+.fc-content-skeleton td:nth-child(-n+5) {
+  padding: 0;
+  /*width: 75%;*/
+}
+
+.fc-time {
+  display: none !important;
+}
+
+.fc-title a {
+  color: #ffffff;
+}
