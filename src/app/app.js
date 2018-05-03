@@ -14,11 +14,12 @@ if (!window.dev) {
     console.log = () => {}
 }
 
-let childRoutes = []
+let childRoutes = [
+    require('./routes/dashboard').default,
+]
 
 if (window.dev) {
     childRoutes = childRoutes.concat([
-        require('./routes/dashboard').default,
         require('./routes/smartadmin-intel').default,
         require('./routes/widgets').default,
         require('./routes/outlook').default,

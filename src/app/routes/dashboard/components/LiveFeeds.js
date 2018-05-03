@@ -22,7 +22,7 @@ let LiveFeeds = React.createClass({
                     <span className="widget-icon">
                         <i className="glyphicon glyphicon-stats txt-color-darken"/> </span>
 
-                    <h2>Live Chart </h2>
+                    <h2>Main chart</h2>
                 </header>
 
                 <div className="no-padding">
