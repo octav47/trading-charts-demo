@@ -39,8 +39,10 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "highcharts": "^6.1.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
+    "react-highcharts": "^16.0.2",
     "react-redux": "^5.0.7",
     "react-router": "^3.0.5",
     "react-router-redux": "^4.0.8",
