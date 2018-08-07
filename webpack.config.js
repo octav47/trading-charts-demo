@@ -1,154 +1,204 @@
-const rhVersion = require('./package').version
-const path = require('path')
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
 
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+const WebpackMd5Hash = require('webpack-md5-hash')
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+module.exports = (env, { mode }) => {
+    const isDev = mode === 'development'
 
-const srcRoot = path.resolve(__dirname, 'src')
-const appRoot = path.resolve(srcRoot, 'app')
+    const output = isDev ? {
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: '/',
+        filename: 'bundle.js',
+    } : {
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: '/',
+        filename: '[name].[chunkhash].js',
+    }
 
+    let plugins = []
 
-module.exports = (env) => {
-    const isDev = env === 'development'
-
-    return {
-        context: path.resolve(__dirname),
-        entry: {
-            main: './src/app/main.js',
-            vendor: [
-                'react', 'react-dom', 'jquery', 'moment',
-                // 'jquery-ui', 'bootstrap',
-                'react-bootstrap', 'lodash',
-            ],
-        },
-        output: {
-            path: path.resolve(__dirname, './dist'),
-            filename: isDev ? `./js/[name].bundle.${rhVersion}.js` : `./js/[name].[hash].bundle.${rhVersion}.js`,
-            sourceMapFilename: isDev ? `./js/[name].bundle.${rhVersion}.map` : `./js/[name].[chunkhash].bundle.${rhVersion}.map`,
-            chunkFilename: isDev ? './js/[id].chunk.js' : './js/[id].[chunkhash].chunk.js',
-            publicPath: '/',
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.jsx?$/, // A regexp to test the require path. accepts either js or jsx
-
-                    loader: 'babel-loader',
-
-                    query: {
-                        presets: [
-                            ['es2015', { modules: false }],
-                            // Webpack understands the native import syntax, and uses it for tree shaking
-
-                            'stage-0',
-                            // Specifies what level of language features to activate.
-                            // State 2 is "draft", 4 is finished, 0 is strawman.
-                            // See https://tc39.github.io/process-document/
-
-                            'react',
-                            // Transpile React components to JS
-                        ],
-                        plugins: [
-                            'react-hot-loader/babel',
-                            // Enables React code to work with HMR.
-                        ],
-                    },
-
-                    exclude: [
-                        /node_modules/,
-                    ],
-                },
-
-                { test: /\.css$/, loader: 'style-loader!css-loader' },
-
-                { test: /\.sass$/, loader: 'style-loader!css-loader!sass-loader' },
-
-                { test: /\.json$/, loader: 'json-loader' },
-
-                {
-                    test: /\.(jpe?g|png|gif)$/,
-                    loader: 'file-loader',
-                    query: {
-                        name: 'assets/img/[name].[ext]',
-                    },
-                },
-            ],
-
-        },
-        resolve: {
-            extensions: ['.js', '.jsx'],
-
-            modules: [
-                appRoot,
-                'node_modules',
-            ],
-
-            alias: {
-                CustomModules: path.resolve(__dirname, 'custom_modules'),
-            },
-        },
-        devServer: {
-
-            // historyApiFallback: true,
-            contentBase: path.join(__dirname, 'dist'),
-            port: 9000,
-            // hot: true,
-            compress: true,
-            publicPath: '/',
-            stats: 'minimal',
-
-        },
-        stats: 'minimal',
-        performance: {
-            hints: false,
-        },
-        devtool: false, // 'eval', //isDev ? 'eval' : 'cheap-source-map',
-
-        plugins: [
+    if (isDev) {
+        plugins = [
             new CleanWebpackPlugin(['dist']),
             new CopyWebpackPlugin([
                 { from: './src/index.html' },
                 { from: './src/assets', to: './assets' },
-
             ]),
-            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+            new HardSourceWebpackPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
+            new webpack.NoEmitOnErrorsPlugin(),
+            new HtmlWebpackPlugin({     // Create HTML file that includes references to bundled CSS and JS.
+                template: 'src/index.html',
+                minify: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                },
+                inject: true,
+            }),
+        ]
+    } else {
+        plugins = [
+            new CopyWebpackPlugin([
+                { from: './src/assets', to: './assets' },
+            ]),
+            // Hash the files using MD5 so that their names change when the content changes.
+            new WebpackMd5Hash(),
+
+            // Tells React to build in prod mode. https://facebook.github.io/react/downloads.html
+            new webpack.DefinePlugin({
+                'process.env.NODE_ENV': JSON.stringify('production'),
+                __DEV__: false,
+            }),
 
             new HtmlWebpackPlugin({
-                template: path.resolve(srcRoot, 'index.html'),
-                chunksSortMode: 'dependency',
-            }),
-
-            new webpack.optimize.CommonsChunkPlugin({
-                name: 'vendor',
-                filename: 'js/[hash].vendor.js',
-
-                minChunks: Infinity,
-            }),
-
-            new webpack.DefinePlugin({
-                process: {
-                    env: {
-                        NODE_ENV: isDev ? '"development"' : '"production"',
-                    },
+                template: 'src/index.html',
+                favicon: 'src/assets/img/favicon/favicon.ico',
+                minify: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    keepClosingSlash: true,
+                    minifyJS: true,
+                    minifyCSS: true,
+                    minifyURLs: true,
                 },
+                inject: true,
+                trackJSToken: '',
             }),
-
-
-        ].concat(
-            !isDev
-                ? // production only plugins
-                [
-                    new webpack.optimize.UglifyJsPlugin({
-                        compress: {
-                            warnings: false,
-                        },
-                    }),
-                ]
-                :// dev only plugins
-                []
-        ),
+        ]
     }
+
+    const config = {
+        resolve: {
+            extensions: ['*', '.js', '.jsx', '.json'],
+            alias: {
+                Modules: path.resolve(__dirname, './src/modules'),
+                Utils: path.resolve(__dirname, './src/app/utils'),
+            },
+        },
+        entry: ['babel-polyfill', path.resolve(__dirname, './src/app.js')],
+        target: 'web',
+        mode,
+        output,
+        plugins,
+        module: {
+            rules: [
+                {
+                    test: /\.jsx?$/,
+                    exclude: /node_modules/,
+                    use: ['babel-loader'],
+                },
+                {
+                    test: /\.eot(\?v=\d+.\d+.\d+)?$/,
+                    use: ['file-loader'],
+                },
+                {
+                    test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                    use: [
+                        {
+                            loader: 'url-loader',
+                            options: {
+                                limit: 10000,
+                                mimetype: 'application/font-woff',
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.[ot]tf(\?v=\d+.\d+.\d+)?$/,
+                    use: [
+                        {
+                            loader: 'url-loader',
+                            options: {
+                                limit: 10000,
+                                mimetype: 'application/octet-stream',
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+                    use: [
+                        {
+                            loader: 'url-loader',
+                            options: {
+                                limit: 10000,
+                                mimetype: 'image/svg+xml',
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.(jpe?g|png|gif|ico)$/i,
+                    use: [
+                        {
+                            loader: 'file-loader',
+                            options: {
+                                name: '[name].[ext]',
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /^((?!\.module).)*(\.css|\.scss|\.sass)$/,
+                    use: [
+                        'style-loader',
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                sourceMap: true,
+                            },
+                        }, {
+                            loader: 'postcss-loader',
+                            options: {
+                                plugins: () => [
+                                    require('autoprefixer'),
+                                ],
+                                sourceMap: true,
+                            },
+                        },
+                        'sass-loader',
+                    ],
+                },
+
+                {
+                    test: /\.module\.sass$/,
+                    use: [
+                        'style-loader',
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                modules: true,
+                                importLoaders: 1,
+                                localIdentName: '[local]__[hash:base64:5]',
+                                camelCase: true,
+                                minimize: false,
+                            },
+                        },
+                        'sass-loader',
+                    ],
+                },
+            ],
+        },
+    }
+
+    if (isDev) {
+        config.devServer = {
+            contentBase: path.join(__dirname, 'dist'),
+            port: 9000,
+            compress: true,
+            publicPath: '/',
+            stats: 'minimal',
+        }
+    }
+
+    return config
 }
