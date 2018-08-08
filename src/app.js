@@ -7,6 +7,8 @@ import { Router, hashHistory } from 'react-router'
 import store from './store/configureStore'
 import routes from './routes'
 
+import './assets/css/normalize.min.css'
+
 const history = syncHistoryWithStore(hashHistory, store)
 
 ReactDOM.render((

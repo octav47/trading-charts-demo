@@ -10,14 +10,15 @@ const WebpackMd5Hash = require('webpack-md5-hash')
 module.exports = (env, { mode }) => {
     const isDev = mode === 'development'
 
-    const output = isDev ? {
+    const output = {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/',
-        filename: 'bundle.js',
-    } : {
-        path: path.resolve(__dirname, 'dist'),
-        publicPath: '/',
-        filename: '[name].[chunkhash].js',
+    }
+
+    if (isDev) {
+        output.filename = 'bundle.js'
+    } else {
+        output.filename = '[name].[chunkhash].js'
     }
 
     let plugins = []
@@ -46,10 +47,8 @@ module.exports = (env, { mode }) => {
             new CopyWebpackPlugin([
                 { from: './src/assets', to: './assets' },
             ]),
-            // Hash the files using MD5 so that their names change when the content changes.
             new WebpackMd5Hash(),
 
-            // Tells React to build in prod mode. https://facebook.github.io/react/downloads.html
             new webpack.DefinePlugin({
                 'process.env.NODE_ENV': JSON.stringify('production'),
                 __DEV__: false,
@@ -81,7 +80,7 @@ module.exports = (env, { mode }) => {
             extensions: ['*', '.js', '.jsx', '.json'],
             alias: {
                 Modules: path.resolve(__dirname, './src/modules'),
-                Utils: path.resolve(__dirname, './src/app/utils'),
+                Config: path.resolve(__dirname, './src/config.json'),
             },
         },
         entry: ['babel-polyfill', path.resolve(__dirname, './src/app.js')],
