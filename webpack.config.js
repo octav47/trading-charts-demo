@@ -56,7 +56,6 @@ module.exports = (env, { mode }) => {
 
             new HtmlWebpackPlugin({
                 template: 'src/index.html',
-                favicon: 'src/assets/img/favicon/favicon.ico',
                 minify: {
                     removeComments: true,
                     collapseWhitespace: true,
